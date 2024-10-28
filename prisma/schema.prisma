@@ -14,7 +14,7 @@ model hello_world {
 
 model Club {
   club_id      BigInt   @id @default(autoincrement())
-  club_name    String
+  club_name    String   @unique
   description  String?
   created_date DateTime @default(now())
 

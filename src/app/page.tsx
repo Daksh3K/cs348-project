@@ -8,8 +8,11 @@ export default function Home() {
         <Link as={NextLink} href="/hello" color="teal.500">
           Hello World
         </Link>
-        <Link href="/api/auth/login?returnTo=/login-redirect" color="teal.500">
+        <Link href="/api/auth/login?returnTo=/profile" color="teal.500">
           Login
+        </Link>
+        <Link href="/api/auth/logout" color="teal.500">
+          Logout
         </Link>
       </Stack>
     </Center>
