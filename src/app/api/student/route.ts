@@ -27,7 +27,15 @@ export async function GET(request: NextRequest) {
 
       const serializedClubs = clubs.map(club => ({
         ...club,
-        club_id: club.club_id.toString()
+        club_id: club.club_id.toString(),
+        manager_id: club.manager_id?.toString(),
+        memberships: club.memberships.map(m => (
+          {
+            membership_id: m.membership_id.toString(),
+            student_id: m.student_id.toString(),
+            club_id: m.club_id.toString(),
+          }
+        ))
       }))
       
       return NextResponse.json(serializedClubs)
@@ -36,7 +44,9 @@ export async function GET(request: NextRequest) {
     case "getStudentEvents": {
       const studentId = params.get("student_id")
       const events = await StudentService.getStudentEvents(BigInt(studentId!))
-
+      console.log(JSON.stringify(events))
+      
+      // TODO
       const serializedEvents = events.map(event => ({
         ...event,
         club_id: event.club_id.toString()

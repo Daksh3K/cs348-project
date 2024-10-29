@@ -16,35 +16,50 @@ export async function GET(request: NextRequest) {
             const clubs = _clubs.map((club) => ({
                 ...club,
                 club_id: club.club_id.toString(),
+                manager_id: club.manager_id?.toString(),
                 membership_id: club.membership_id !== null ? club.membership_id.toString() : null
             }))
             return NextResponse.json(clubs)
         }
-        // case "getClub": {
-        //     const clubId = params.get("club_id")
-        //     const club = await ClubService.getClub(BigInt(clubId!)) // Assuming you have a method to get a club by ID
-        //     return NextResponse.json(club)
-        // }
-        // case "getClubMembers": {
-        //     const clubId = params.get("club_id")
-        //     const members = await ClubService.getClubMembers(BigInt(clubId!)) // Assuming you have a method to get members of a club
-        //     return NextResponse.json(members)
-        // }
+        case "getManagedClub": {
+            const studentId = params.get("student_id")
+
+            const club = await ClubService.getManagedClub(BigInt(studentId!))
+            return NextResponse.json({
+                ...club,
+                club_id: club?.club_id.toString(),
+                manager_id: club?.manager_id?.toString()
+            })
+        }
+
     }
 }
 
 export async function POST(request: NextRequest) {
+    const params = request.nextUrl.searchParams
+    const type = params.get("type")
     const body = await request.json()
-    const { type, name, description, studentId, clubId } = body
 
     switch (type) {
         case "addClub": {
-            const newClub = await ClubService.addClub(name, description)
-            return NextResponse.json(newClub)
+            const { name, description, studentId } = body
+            console.log(`\n\nStudent id is: ${studentId}\n\n`)
+            const newClub = await ClubService.addClub(name, description, BigInt(studentId))
+            return NextResponse.json({
+                ...newClub,
+                club_id: newClub.club_id.toString(),
+                manager_id: newClub.manager_id?.toString()
+            })
         }
         case "joinClub": {
+            const { studentId, clubId } = body
             const membership = await ClubService.joinClub(BigInt(studentId), BigInt(clubId))
-            return NextResponse.json(membership)
+            return NextResponse.json({
+                ...membership,
+                membership_id: membership.membership_id.toString(),
+                student_id: membership.student_id.toString(),
+                club_id: membership.club_id.toString()
+            })
         }
     }
 }

@@ -6,7 +6,7 @@ import { useAtom } from "jotai";
 import { studentAtom } from "@src/atoms/studentAtom";
 import { useEffect, useState } from "react";
 import { type Club, Event } from "@prisma/client";
-import { type ClubWithStringId } from "@src/types/club";
+import { clubsWithMembershipsStringID } from "@src/types/club";
 
 type EventWithStringId = Omit<Event, 'event_id'> & { event_id: string };
 
@@ -33,16 +33,24 @@ export default function ProfilePage() {
         setError(true)
       }
 
-      const clubs = await clubResponse.json();
+      const clubs = await clubResponse.json() as clubsWithMembershipsStringID;
 
       const events = await eventResponse.json();
 
-      setClubs(clubs.map((club: ClubWithStringId)  => ({
+      setClubs(clubs.map(club => ({
         ...club,
         club_id: BigInt(club.club_id),
+        manager_id: BigInt(club.manager_id),
+        memberships: club.memberships.map(m => (
+          {
+            membership_id: BigInt(m.membership_id),
+            student_id: BigInt(m.student_id),
+            club_id: BigInt(m.club_id),
+          }
+        ))
       })));
 
-      setClubs(events.map((event: EventWithStringId) => ({
+      setEvents(events.map((event: EventWithStringId) => ({
         ...event,
         event_id: BigInt(event.club_id),
       })));      
