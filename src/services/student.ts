@@ -51,4 +51,14 @@ export class StudentService {
 
     return events;
   }
+
+  static async addStudent(firstName: string, lastName: string, email: string) {
+    return prisma.student.create({
+      data: {
+        first_name: firstName,
+        last_name: lastName,
+        email: email
+      }
+    })
+  }
 }

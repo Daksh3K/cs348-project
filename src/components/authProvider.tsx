@@ -39,8 +39,8 @@ export default function AuthProvider({
         }
 
         const studentData = await response.json();
-
-        if (studentData) {
+        
+        if (Object.entries(studentData).length) {
           const formattedStudent = {
             ...studentData,
             student_id: BigInt(studentData.student_id),
@@ -48,7 +48,7 @@ export default function AuthProvider({
 
           setStudent(formattedStudent);
         } else {
-          router.push("/profile/onboarding");
+          router.push("/profile-onboarding");
         }
       } catch (error) {
         console.error("Auth check failed:", error);

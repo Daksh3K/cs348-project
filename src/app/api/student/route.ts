@@ -54,9 +54,32 @@ export async function GET(request: NextRequest) {
       
       return NextResponse.json(serializedEvents)
     }
-    
-    case "addStudent":
-
   }
     
+}
+
+export async function POST(request: NextRequest) {
+  const params = request.nextUrl.searchParams;
+  const type = params.get("type");
+  const body = await request.json();
+
+  switch(type) {
+    case "addStudent": {
+      const {
+        firstName,
+        lastName,
+        email
+      } = body
+
+      const result = await StudentService.addStudent(firstName, lastName, email)
+
+      return NextResponse.json({
+        ...result,
+        student_id: result.student_id.toString(),
+        join_date: result.join_date.getTime()
+      })
+
+    }
+  }
+
 }

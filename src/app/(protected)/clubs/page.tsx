@@ -117,6 +117,7 @@ export default function ClubsPage() {
               borderRadius="md"
               boxShadow="md"
               minWidth="200px"
+              maxWidth={"300px"}
             >
               <Text fontWeight="bold">{club.club_name}</Text>
               <Text>{club.description}</Text>
@@ -125,9 +126,9 @@ export default function ClubsPage() {
                 {new Date(club.created_date).toLocaleDateString()}
               </Text>
               {club.membership_id ? (
-                <Text>Joined</Text>
+                <Text mt={"0.5rem"} color={"green"}>Joined</Text>
               ) : (
-                <Button colorScheme="blue" onClick={(e) => {
+                <Button mt={"0.5rem"} colorScheme="blue" onClick={(e) => {
                   e.preventDefault()
                   joinClub(club.club_id)}
                 }>Join</Button>
