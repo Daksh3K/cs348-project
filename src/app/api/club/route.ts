@@ -61,6 +61,26 @@ export async function POST(request: NextRequest) {
                 club_id: membership.club_id.toString()
             })
         }
+        case "leaveClub": {
+            const { studentId, clubId } = body
+            const res = await ClubService.leaveClub(BigInt(studentId), BigInt(clubId))
+            
+            if (Object.entries(res).length) {
+                return NextResponse.json({ success: true })
+            } else {
+                return NextResponse.error()
+            }
+        }
+        case "updateClub": {
+            const { managerId, newClubName, newDescription } = body
+            console.log("New info", newClubName, newDescription)
+            const res = await ClubService.updateClub(BigInt(managerId), newClubName, newDescription)
+            return NextResponse.json({
+                ...res,
+                club_id: res.club_id.toString(),
+                manager_id: res.manager_id?.toString()
+            })
+        }
     }
 }
 

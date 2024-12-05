@@ -44,11 +44,7 @@ type createEventInput = {
   venueId: bigint;
 };
 
-type eventFilters = {
-  search: string;
-  attending: boolean;
-  eventDate: Date;
-};
+
 
 export default function EventsPage() {
   const [student] = useAtom(studentAtom);
@@ -63,11 +59,6 @@ export default function EventsPage() {
     venueId: BigInt(0),
   });
   const [venues, setVenues] = useState<Venue[]>();
-  const [eventFilters, setEventFilters] = useState<eventFilters>({
-    search: '',
-    eventDate: new Date(),
-    attending: false
-  });
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isLoading, setIsLoading] = useState<boolean>();
@@ -157,6 +148,18 @@ export default function EventsPage() {
     );
   };
 
+  const RSVPEvent = async (joiningEventID: bigint) => {
+    const response = await fetch("api/event?type=joinEvent", {
+      method: "POST",
+      body: JSON.stringify({
+        eventID: joiningEventID.toString(),
+        studentID: student?.student_id.toString(),
+      }),
+    });
+
+    if (!response.ok) console.error("failed to join event");
+  };
+
   if (isLoading) return <Spinner />;
   if (error) return <Text color={"red.200"}>Error while fetching events</Text>;
 
@@ -165,55 +168,6 @@ export default function EventsPage() {
       <Text fontSize="lg" fontWeight="bold" mb={"1rem"}>
         Upcoming Events
       </Text>
-
-      <Box
-        borderRadius={"md"}
-        backgroundColor={theme.colors.gray[100]}
-        padding={"1rem"}
-        mb={"1rem"}
-      >
-        <Text fontSize="md" fontWeight={"bold"} mb={"0.5rem"}>
-          Filters
-        </Text>
-        <Flex flexDir={"row"} mt={"0.5rem"} alignItems={"center"}>
-          <FormLabel padding={"0rem"}>Search Events</FormLabel>
-          <Input
-            placeholder="Search events"
-            mb="0.5rem"
-            width={"25ch"}
-            mr={"1rem"}
-            value={eventFilters?.search}
-            onChange={(e) => {
-              setEventFilters(prev => ({
-                ...prev,
-                search: e.target.value
-              }))
-            }}
-          />
-          <FormLabel>Attending: </FormLabel>
-          <Switch mr={"1rem"} isChecked={eventFilters.attending} onChange={(e) => {
-            setEventFilters(prev => ({
-              ...prev,
-              attending: !prev.attending
-            }))
-          }}/>
-          <FormLabel>Search Day: </FormLabel>
-          <Input
-            type="date"
-            placeholder="Select a date"
-            mb="0.5rem"
-            width={"25ch"}
-            mr={"1rem"}
-            onChange={(e) => {
-              setEventFilters(prev => ({
-                ...prev,
-                eventDate: new Date(e.target.value  + "T00:00:00")
-              }))
-            }}
-          />
-          <Button colorScheme="teal">Apply</Button>
-        </Flex>
-      </Box>
 
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
         {events?.map((event) => (
@@ -249,7 +203,12 @@ export default function EventsPage() {
               {event.status ? (
                 <Text>Attending</Text>
               ) : (
-                <Button colorScheme="blue">RSVP</Button>
+                <Button
+                  onClick={() => RSVPEvent(event.event_id)}
+                  colorScheme="blue"
+                >
+                  RSVP
+                </Button>
               )}
             </CardFooter>
           </Card>
@@ -270,7 +229,7 @@ export default function EventsPage() {
           <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Create Club</ModalHeader>
+              <ModalHeader>Create Event</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
                 <FormControl isRequired>

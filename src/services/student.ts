@@ -1,5 +1,13 @@
 import prisma from "@src/app/db";
 
+
+export type generateReportResult1 = {
+  count: bigint,
+  total_time_in_events: number,
+  average_time_per_event: number
+}
+
+
 export class StudentService {
 
   static async getStudent(email: string) {
@@ -43,10 +51,7 @@ export class StudentService {
             student_id: studentId,
           },
         },
-      },
-      include: {
-        participations: true, // Optionally include participation details
-      },
+      }
     });
 
     return events;
@@ -61,4 +66,24 @@ export class StudentService {
       }
     })
   }
+
+  static async generateReport(studentID: bigint, clubID: bigint, from: Date, to: Date) {
+    const [res1, res2] = await prisma.$transaction([
+      prisma.$queryRaw`
+        SELECT COUNT(*), SUM(EXTRACT(EPOCH FROM (e.end_time - e.start_time)) / 3600) as total_time_in_events, SUM(EXTRACT(EPOCH FROM (e.end_time - e.start_time)) / 3600) / CAST(COUNT(*) AS FLOAT) as average_time_per_event
+      FROM "Event" e
+      INNER JOIN "Event_Participation" ep ON e.event_id = ep.event_id
+      WHERE ep.student_id = ${studentID} AND e.club_id = ${clubID} AND e.start_time >= ${from} AND e.end_time < ${to}
+      `,
+  
+      prisma.$queryRaw`
+        SELECT 
+          COUNT(*) AS number_of_clubs
+        FROM "Club_Membership" cp
+        WHERE cp.student_id = ${studentID}
+      `,
+    ]) as [generateReportResult1[], { number_of_clubs : bigint }[]];
+    return { ...res1[0], ...res2[0] };
+  }
+  
 }

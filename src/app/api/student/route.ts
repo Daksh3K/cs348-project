@@ -43,13 +43,12 @@ export async function GET(request: NextRequest) {
 
     case "getStudentEvents": {
       const studentId = params.get("student_id")
-      const events = await StudentService.getStudentEvents(BigInt(studentId!))
-      console.log(JSON.stringify(events))
-      
-      // TODO
+      const events = await StudentService.getStudentEvents(BigInt(studentId!))      
       const serializedEvents = events.map(event => ({
         ...event,
-        club_id: event.club_id.toString()
+        club_id: event.club_id.toString(),
+        event_id: event.event_id.toString(),
+        venue_id: event.venue_id.toString()
       }))
       
       return NextResponse.json(serializedEvents)
@@ -79,6 +78,20 @@ export async function POST(request: NextRequest) {
         join_date: result.join_date.getTime()
       })
 
+    }
+
+    case "generateReport": {
+      const studentID = params.get("student_id")
+      const { clubID, from, to } = body
+
+      const fromDateTime = new Date(from)
+      const toDateTime = new Date(to)
+      const result = await StudentService.generateReport(BigInt(studentID!), BigInt(clubID), fromDateTime, toDateTime)
+      return NextResponse.json({
+        ...result,
+        number_of_clubs: result.number_of_clubs.toString(),
+        count: result.count.toString(),
+      })
     }
   }
 

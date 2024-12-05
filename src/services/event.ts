@@ -50,4 +50,15 @@ export class EventService {
       },
     });
   }
+
+
+  static async joinEvent(eventID: bigint, studentID: bigint) {
+    return prisma.event_Participation.create({
+      data: {
+        event_id: eventID,
+        student_id: studentID,
+        status: "Accepted"
+      }
+    })
+  }
 }

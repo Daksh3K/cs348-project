@@ -15,10 +15,12 @@ import {
   useDisclosure,
   Input,
   Spinner,
+  Flex,
+  IconButton,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
-import { HiPlus } from "react-icons/hi";
+import { HiPlus, HiPencil } from "react-icons/hi";
 
 import { studentAtom } from "@src/atoms/studentAtom";
 import { type clubsWithMembership } from "@src/app/api/club/route";
@@ -28,10 +30,15 @@ export default function ClubsPage() {
   const [clubs, setClubs] = useState<clubsWithMembership>([]);
 
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+
   const [isLoading, setIsloading] = useState<boolean>();
   const [error, setError] = useState<boolean>(false);
   const [clubName, setClubName] = useState(""); // State for club name
   const [description, setDescription] = useState(""); // State for description
+
+  const [editClubName, setEditClubName] = useState(""); // State for club name
+  const [editDescription, setEditDescription] = useState(""); // State for description
 
   useEffect(() => {
     setIsloading(true);
@@ -98,6 +105,24 @@ export default function ClubsPage() {
     }
   }
 
+  const submitEditClub = async () => {
+    const result = await fetch("api/club?type=updateClub", {
+      method: "POST",
+      body: JSON.stringify({
+        managerId: student?.student_id.toString(), // only managers are allowed to edit clubs
+        newClubName: editClubName,
+        newDescription: editDescription
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      }
+    })
+
+    if (!result.ok) {
+      console.error("Failed to edit club")
+    }
+  }
+
   if (isLoading) return <Spinner />
 
   if (error) return <Text>Something went wrong!</Text>
@@ -119,7 +144,10 @@ export default function ClubsPage() {
               minWidth="200px"
               maxWidth={"300px"}
             >
+              <Flex justifyContent={"space-between"} alignItems={"center"} mb={"1rem"}>
               <Text fontWeight="bold">{club.club_name}</Text>
+              {club.manager_id?.toString() === student?.student_id.toString() ? <IconButton aria-label="edit" icon={<HiPencil />} onClick={onEditOpen}/> : null}
+              </Flex>
               <Text>{club.description}</Text>
               <Text>
                 <strong>Created:</strong>{" "}
@@ -172,6 +200,35 @@ export default function ClubsPage() {
           <ModalFooter>
             <Button colorScheme="teal" onClick={submitAddClub} mr={"0.5rem"}>Add</Button>
             <Button variant="ghost"onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Edit club modal*/}
+      <Modal isOpen={isEditOpen} onClose={onEditClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit your Club</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Input
+              placeholder="Club Name"
+              value={editClubName}
+              onChange={(e) => setEditClubName(e.target.value)}
+              mb={4}
+            />
+            <Input
+              placeholder="Description"
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+            />
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="teal" onClick={submitEditClub} mr={"0.5rem"}>Add</Button>
+            <Button variant="ghost"onClick={onEditClose}>
               Close
             </Button>
           </ModalFooter>

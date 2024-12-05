@@ -97,5 +97,20 @@ export async function POST(request: NextRequest) {
         })))
 
     }
+
+    case "joinEvent": {
+      const { eventID, studentID } = body
+      const result = await EventService.joinEvent(
+        BigInt(eventID),
+        BigInt(studentID)
+      )
+
+      return NextResponse.json({
+        ...result,
+        participation_id: result.participation_id.toString(),
+        student_id: result.student_id.toString(),
+        event_id: result.event_id.toString()
+      })
+    }
   }
 }
