@@ -10,5 +10,109 @@ datasource db {
 model hello_world {
   message String @db.String(255)
   id      BigInt @id
+}
 
+model Club {
+  club_id      BigInt   @id @default(autoincrement())
+  club_name    String   @unique
+  description  String?
+  created_date DateTime @default(now())
+
+  // Manager foreign key
+  manager_id BigInt? // Optional, as a club may not have a manager initially
+  manager    Student? @relation("ClubManager", fields: [manager_id], references: [student_id])
+
+  // Relationships
+  events      Event[]
+  memberships Club_Membership[]
+
+  // Unique constraint to ensure one student manages only one club and is a member
+  @@unique([manager_id])
+}
+
+model Venue {
+  venue_id   BigInt @id @default(autoincrement())
+  venue_name String
+  location   String
+  capacity   Int
+
+  // Relationships
+  events Event[]
+}
+
+model Student {
+  student_id BigInt   @id @default(autoincrement())
+  first_name String
+  last_name  String
+  email      String   @unique
+  join_date  DateTime @default(now())
+
+  // Relationships
+  memberships    Club_Membership[]     @relation("ClubMembership")
+  participations Event_Participation[]
+  managed_club   Club?               @relation("ClubManager") // Student manages one club
+
+  // Unique constraint to ensure a student manages only one club
+  @@unique([student_id])
+}
+
+model Event {
+  event_id              BigInt   @id @default(autoincrement())
+  event_name            String
+  event_date            DateTime
+  start_time            DateTime
+  end_time              DateTime
+  anticipated_attendees Int
+
+  // Foreign Keys
+  club_id  BigInt
+  venue_id BigInt
+
+  // Relationships
+  club           Club                  @relation(fields: [club_id], references: [club_id])
+  venue          Venue                 @relation(fields: [venue_id], references: [venue_id])
+  participations Event_Participation[]
+}
+
+model Club_Membership {
+  membership_id         BigInt           @id @default(autoincrement())
+  membership_start_date DateTime         @default(now())
+  membership_status     MembershipStatus
+
+  // Foreign Keys
+  student_id BigInt
+  club_id    BigInt
+
+  // Relationships
+  student Student @relation("ClubMembership", fields: [student_id], references: [student_id])
+  club    Club    @relation(fields: [club_id], references: [club_id])
+
+  @@unique([student_id, club_id]) // Ensures each student is a member of a club only once
+}
+
+model Event_Participation {
+  participation_id BigInt              @id @default(autoincrement())
+  status           ParticipationStatus
+
+  // Foreign Keys
+  event_id   BigInt
+  student_id BigInt
+
+  // Relationships
+  event   Event   @relation(fields: [event_id], references: [event_id])
+  student Student @relation(fields: [student_id], references: [student_id])
+
+  @@unique([event_id, student_id]) // Ensures each student participates in an event only once
+}
+
+enum MembershipStatus {
+  Active
+  Inactive
+}
+
+enum ParticipationStatus {
+  Invited
+  Accepted
+  Declined
+  Attended
 }
