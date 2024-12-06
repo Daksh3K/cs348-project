@@ -51,7 +51,6 @@ export async function POST(request: NextRequest) {
         venueId,
       }: addEventBody = body;
 
-      console.log(`\n\nEvent Date: ${eventDate}, Event Time: ${eventStartTime} - ${eventEndTime}\n\n`)
 
       // parse dates into Date objects
       const parsedEventDate = new Date(eventDate)

@@ -44,8 +44,6 @@ type createEventInput = {
   venueId: bigint;
 };
 
-
-
 export default function EventsPage() {
   const [student] = useAtom(studentAtom);
   const [events, setEvents] = useState<getAllEvents>();
@@ -111,9 +109,9 @@ export default function EventsPage() {
       method: "POST",
       body: JSON.stringify({
         eventName: eventInput.eventName,
-        eventDate: eventInput.eventDate.getTime(),
-        eventStartTime: eventInput.eventStartTime.getTime(),
-        eventEndTime: eventInput.eventEndTime.getTime(),
+        eventDate: eventInput.eventDate.toISOString(),
+        eventStartTime: eventInput.eventStartTime.toISOString(),
+        eventEndTime: eventInput.eventEndTime.toISOString(),
         attendees: eventInput.attendees,
         clubId: managedClub?.club_id.toString(),
         venueId: eventInput.venueId.toString(),
@@ -128,9 +126,9 @@ export default function EventsPage() {
     const result = await fetch("api/event?type=getVenues", {
       method: "POST",
       body: JSON.stringify({
-        eventDay: eventInput.eventDate.getTime(),
-        eventStartTime: eventInput.eventStartTime.getTime(),
-        eventEndTime: eventInput.eventEndTime.getTime(),
+        eventDay: eventInput.eventDate.toISOString(),
+        eventStartTime: eventInput.eventStartTime.toISOString(),
+        eventEndTime: eventInput.eventEndTime.toISOString(),
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
@@ -254,7 +252,7 @@ export default function EventsPage() {
                     onChange={(e) =>
                       setEventInput((prevState) => ({
                         ...prevState,
-                        eventDate: new Date(e.target.value + "T00:00:00"),
+                        eventDate: new Date(e.target.value + "T00:00:00Z"),
                       }))
                     }
                   />
@@ -269,9 +267,11 @@ export default function EventsPage() {
                       setEventInput((prevState) => ({
                         ...prevState,
                         eventStartTime: new Date(
-                          new Date().setHours(
-                            parseInt(e.target.value.split(":")[0], 10), // hours
-                            parseInt(e.target.value.split(":")[1], 10) // minutes
+                          new Date(eventInput.eventDate).setHours(
+                            parseInt(e.target.value.split(":")[0]),
+                            parseInt(e.target.value.split(":")[1]),
+                            0,
+                            0
                           )
                         ),
                       }))
@@ -288,9 +288,11 @@ export default function EventsPage() {
                       setEventInput((prevState) => ({
                         ...prevState,
                         eventEndTime: new Date(
-                          new Date().setHours(
-                            parseInt(e.target.value.split(":")[0], 10), // hours
-                            parseInt(e.target.value.split(":")[1], 10) // minutes
+                          new Date(eventInput.eventDate).setHours(
+                            parseInt(e.target.value.split(":")[0]),
+                            parseInt(e.target.value.split(":")[1]),
+                            0,
+                            0
                           )
                         ),
                       }))

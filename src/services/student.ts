@@ -73,7 +73,7 @@ export class StudentService {
         SELECT COUNT(*), SUM(EXTRACT(EPOCH FROM (e.end_time - e.start_time)) / 3600) as total_time_in_events, SUM(EXTRACT(EPOCH FROM (e.end_time - e.start_time)) / 3600) / CAST(COUNT(*) AS FLOAT) as average_time_per_event
       FROM "Event" e
       INNER JOIN "Event_Participation" ep ON e.event_id = ep.event_id
-      WHERE ep.student_id = ${studentID} AND e.club_id = ${clubID} AND e.start_time >= ${from} AND e.end_time < ${to}
+      WHERE ep.student_id = ${studentID} AND e.club_id = ${clubID} AND e.event_date >= ${from} AND e.event_date < ${to}
       `,
   
       prisma.$queryRaw`
@@ -83,6 +83,9 @@ export class StudentService {
         WHERE cp.student_id = ${studentID}
       `,
     ]) as [generateReportResult1[], { number_of_clubs : bigint }[]];
+    console.log("\n\nres1: ", res1)
+    console.log("\n\nres2: ", res2)
+
     return { ...res1[0], ...res2[0] };
   }
   

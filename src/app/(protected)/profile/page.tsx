@@ -311,15 +311,28 @@ export default function ProfilePage() {
             {reportResult.number_of_clubs}
           </Text>
           <Text>
-            <strong>Number of events attended:</strong>{" "}
-            {reportResult.number_of_clubs}
+            <strong>Number of events attended:</strong> {reportResult.count}
           </Text>
           <Text>
-            <strong>total time in events:</strong>{" "}
+            <strong>
+              total time in events for club{" "}
+              {
+                clubs?.find((c) => c.manager_id === student?.student_id)
+                  ?.club_name
+              }
+              :
+            </strong>{" "}
             {reportResult.total_time_in_events}
           </Text>
           <Text>
-            <strong>Average time per event:</strong>{" "}
+            <strong>
+              Average time per event for club{" "}
+              {
+                clubs?.find((c) => c.manager_id === student?.student_id)
+                  ?.club_name
+              }
+              :
+            </strong>{" "}
             {reportResult.average_time_per_event}
           </Text>
         </VStack>
