@@ -86,6 +86,8 @@ export async function POST(request: NextRequest) {
 
       const fromDateTime = new Date(from)
       const toDateTime = new Date(to)
+
+      console.log(studentID, clubID, from, to)
       const result = await StudentService.generateReport(BigInt(studentID!), BigInt(clubID), fromDateTime, toDateTime)
       return NextResponse.json({
         ...result,
